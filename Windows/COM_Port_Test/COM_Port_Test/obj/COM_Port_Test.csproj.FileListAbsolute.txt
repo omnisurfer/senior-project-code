@@ -1,0 +1,2 @@
+C:\Documents and Settings\Daniel M Rowan\My Documents\Personal Information Database, Dagaz_Mutual\School\College\Senior Project\Senior Project Code\Windows\Serial Port Test NET 2005\COM_Port_Test\COM_Port_Test\obj\Debug\COM_Port_Test.exe
+C:\Documents and Settings\Daniel M Rowan\My Documents\Personal Information Database, Dagaz_Mutual\School\College\Senior Project\Senior Project Code\Windows\Serial Port Test NET 2005\COM_Port_Test\COM_Port_Test\obj\Debug\COM_Port_Test.pdb

@@ -1,0 +1,32 @@
+MPASM  4.00 Released                            DATA_TEST.MCW   2-5-2006  17:11:51         PAGE  1
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+Error[108]  : Illegal character ()
+                      00001 ÐÏà¡±
+Error[129]  : Expected (END)
+Error[131]  : Processor type is undefined
+MPASM  4.00 Released                            DATA_TEST.MCW   2-5-2006  17:11:51         PAGE  2
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+
+
+MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
+
+
+All other memory blocks unused.
+
+Program Memory Words Used:     0
+Program Memory Words Free:     1
+
+
+Errors   :     3
+Warnings :     0 reported,     0 suppressed
+Messages :     0 reported,     0 suppressed
+
+

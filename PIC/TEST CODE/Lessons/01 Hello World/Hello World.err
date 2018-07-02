@@ -1,0 +1,2 @@
+Error[113]   C:\PIC\TEST CODE\LESSONS\01 HELLO WORLD\HELLO WORLD.ASM 26 : Symbol not previously defined (_BOD_OFF)
+Message[302] C:\PIC\TEST CODE\LESSONS\01 HELLO WORLD\HELLO WORLD.ASM 30 : Register in operand not in bank 0.  Ensure that bank bits are correct.

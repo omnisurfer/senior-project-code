@@ -1,0 +1,1 @@
+Note: The code in here works as subroutines which must be included using #include<code.asm> and called using CALL command...each is self contained and will CALL serial_io on thier own to send data back.

@@ -1,0 +1,695 @@
+MPASM  4.00 Released                            TMR1_TEST.ASM   1-12-2006  14:56:10         PAGE  1
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00001 ;*********TMR1 Gate control test
+                      00002 ;
+                      00003 ;This code is ment to test the TMR1 Gate control setup for the PING
+                      00004 ;sensor. By holding the value on RA4, this will enable to counter.
+                      00005 ;The high bits will be monitored.
+                      00006 ;CODE TEST OK
+                      00007 
+                      00008 ;*********PING Sensor Test code
+                      00009 ;
+                      00010 ;This code sets the PING sensor up by sending a 5us pulse on pin T1G
+                      00011 ;as an output, then changed to the input of Timer1Gate to time how long
+                      00012 ;the return pulse is comming back. This pulse is between 115us to 18.5ms
+                      00013 ;Note the PIC clock rate is set at 1MHz, and Timer1 is set so that it increments 
+                      00014 ;every cycle or every 1us until TG1 goes low (it is inverted to be active high).
+                      00015 ;The counter is 16 bits with a maximum count time of 65.536ms
+                      00016 ;
+                      00017 ;The general flow is as follows:
+                      00018 ;       Setup PORTA for digi I/O
+                      00019 ;       First set PORTA pin RA4 as an output
+                      00020 ;       Write a '1' to this pin - !!!CHECK TO SEE IF THIS CAN BE DONE!
+                      00021 ;       Hold for 5us
+                      00022 ;       Remove '1' from this pin
+                      00023 ;       Clear Timer1 registers to 0000h
+                      00024 ;       Enable TG1 as active high
+                      00025 ;       Set PORTA pin RA4 as TG1
+                      00026 ;       Wait (perform other tasks)
+                      00027 ;       Check TG1 if it is low  - changed to endless display of lower byte
+                      00028 ;       If low get Timer1 high byte and low byte
+                      00029 ;               Else check back later
+                      00030 ;       Store value in memory
+                      00031 
+                      00032 #include <p16F690.inc>
+                      00001         LIST
+                      00002 ; P16F690.INC  Standard Header File, Version 1.00    Microchip Technology, Inc.
+                      00588         LIST
+2007   30D4           00033         __config (_INTRC_OSC_NOCLKOUT & _WDT_OFF & _PWRTE_OFF & _MCLRE_OFF & _CP_OFF & _BOD_OFF & _IESO_
+                            OFF & _FCMEN_OFF)
+                      00034         cblock  0x20
+                      00035 
+  00000020            00036 BIGLOOP
+  00000021            00037 DELAY0
+  00000022            00038 DELAY1
+  00000023            00039 DELAY2
+  00000024            00040 DELAY3
+  00000025            00041 STORELOW
+  00000026            00042 STOREHIGH
+                      00043         endc
+                      00044 
+                      00045 
+                      00046 
+0000                  00047 PULSE_SETUP                                     ;Get PORTA ready for PIN RA4 to be out
+0000   1283           00048                 bcf             STATUS,RP0              ;-------------  
+0001   1703           00049                 bsf             STATUS,RP1              ;get to bank 2
+MPASM  4.00 Released                            TMR1_TEST.ASM   1-12-2006  14:56:10         PAGE  2
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0002   019E           00050                 clrf    ANSEL                   ;make PORTA all digi I/Os
+                      00051         
+                      00052 ;Fourth_LOOP
+                      00053 ;               decfsz  DELAY3
+                      00054 ;               goto    Fourth_LOOP
+                      00055 ;               goto    Third_LOOP
+                      00056 
+0003                  00057 CONT_END                
+0003   1683           00058                 bsf             STATUS,RP0              ;-------------
+0004   1303           00059                 bcf             STATUS,RP1              ;get to bank 1
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0005   0187           00060                 clrf    TRISC                   ;make PORTC all out
+0006   3071           00061                 movlw   b'01110001'             ;internal clock, 2MHz OSC, 1MHz system, 1us per tick
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0007   008F           00062                 movwf   OSCCON
+0008                  00063 PULSE_AGAIN
+0008   3000           00064                 movlw   b'00000000'             ;make PORTA all out
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0009   0085           00065                 movwf   TRISA
+                      00066 
+                      00067                 
+000A   1283           00068                 bcf             STATUS,RP0              ;get to bank 0
+                      00069                 ;clrf   PORTC                   ;clear PORTC
+                      00070 
+                      00071                 ;bsf            STATUS,RP1              ;get to bank 1
+                      00072                 ;bsf            WPUA,4                  ;enable weak pull up
+                      00073 
+                      00074                 ;btfsc  PORTA,4                 ;is switch off (0)
+                      00075                 ;goto   Loop
+                      00076 
+000B   1303           00077                 bcf             STATUS,RP1              ;get back to reg 0
+000C   3000           00078                 movlw   b'00000000'             ;put a '0' on the port for transition
+000D   0085           00079                 movwf   PORTA
+000E   0000           00080                 NOP
+000F   0000           00081                 NOP
+0010   0000           00082                 NOP
+0011   0000           00083                 NOP
+0012   3010           00084                 movlw   b'00010000'             ;put a '1' on the port
+0013   0085           00085                 movwf   PORTA                   ;1us
+                      00086                 
+                      00087                 ;movlw  0x03
+                      00088                 ;movwf  KILLTIME0
+                      00089 
+0014   3001           00090                 movlw   0x01;0x6f;0x2C
+0015   00A0           00091                 movwf   BIGLOOP
+                      00092 
+                      00093                 ;PULSE DELAY CODE!!! 
+                      00094 
+0016                  00095 MAIN_LOOP1
+Message[305]: Using default destination of 1 (file).
+0016   0BA0           00096                 decfsz  BIGLOOP
+0017   2819           00097                 goto    CONT1
+MPASM  4.00 Released                            TMR1_TEST.ASM   1-12-2006  14:56:10         PAGE  3
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0018   2822           00098                 goto    CONT_FINAL1
+0019                  00099 CONT1
+0019   30FF           00100                 movlw   0xff
+001A   00A1           00101                 movwf   DELAY0
+001B   30FF           00102                 movlw   0xff
+001C   00A2           00103                 movwf   DELAY1
+                      00104 
+001D                  00105 DEC_LOW1
+Message[305]: Using default destination of 1 (file).
+001D   0BA1           00106                 decfsz  DELAY0
+001E   281D           00107                 goto    DEC_LOW1
+                      00108 
+001F                  00109 DEC_HIGH1
+Message[305]: Using default destination of 1 (file).
+001F   0BA2           00110                 decfsz  DELAY1
+0020   281F           00111                 goto    DEC_HIGH1                               
+0021   2816           00112                 goto    MAIN_LOOP1      
+                      00113 
+0022                  00114 CONT_FINAL1
+0022   018E           00115                 clrf    TMR1L                   ;clear TMR1 Low, 6us
+0023   018F           00116                 clrf    TMR1H                   ;clear TMR1 High, 7us
+                      00117 
+                      00118                 ;goto   $                               ;TEST output
+0024   3000           00119                 movlw   b'00000000'             ;clear it 8us
+0025   0085           00120                 movwf   PORTA                   ;cleared, now have 750us until return pulse, 5us - 7us
+                      00121 
+0026   1683           00122                 bsf             STATUS,RP0              ;get to bank 1
+0027   1303           00123                 bcf             STATUS,RP1
+                      00124                 ;movlw  b'00110111'             ;enable weak pull up on RA4
+                      00125                 ;movwf  WPUA
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0028   0195           00126                 clrf    WPUA                    ;make sure weak pull up is disabled
+0029   303F           00127                 movlw   b'00111111'             
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+002A   0085           00128                 movwf   TRISA                   ;make RA4 input
+                      00129                 ;goto   $                               ;TEST wait here
+                      00130 
+002B                  00131 TMR1_SETUP              ;get TMR1 ready 
+002B   1283           00132                 bcf             STATUS,RP0
+002C   1703           00133                 bsf             STATUS,RP1              ;get to bank 2
+                      00134                 ;setup CM2CON1 regsiter - already in bank 1
+002D   3002           00135                 movlw   b'00000010'             ;set TMR1 to be gated by RA4
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+002E   009B           00136                 movwf   CM2CON1
+                      00137 
+002F   1303           00138                 bcf             STATUS,RP1              ;get to bank 0
+0030   30C1           00139                 movlw   b'11000001'             ;Active High, Gated, max prescale (later 1us per tic), i
+                            nternal clock, TMR1 active
+                      00140                 ;movlw  b'00110001'             ;enable TMR1
+0031   0090           00141                 movwf   T1CON
+                      00142 
+0032                  00143 Loop    
+                      00144                 ;btfsc  PORTA,4                 ;is switch off (0)
+MPASM  4.00 Released                            TMR1_TEST.ASM   1-12-2006  14:56:10         PAGE  4
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00145                 ;goto   Loop
+0032   080E           00146                 movf    TMR1L,w                 ;endlessly display whatever is in TMR1L
+                      00147                 ;movwf  STORELOW
+                      00148                 ;movf   STORELOW,w
+0033   0087           00149                 movwf   PORTC                   ;so long as RA4 is High, TMR1L will increment
+                      00150                 ;goto   Loop
+                      00151 
+                      00152                 ;TEST DELAY CODE FOR CONTINUOUS SAMPLING!!!
+0034   300A           00153                 movlw   0x0a;0x05
+0035   00A1           00154                 movwf   DELAY0
+0036   3042           00155                 movlw   0x42
+0037   00A2           00156                 movwf   DELAY1
+0038   3040           00157                 movlw   0x40
+0039   00A3           00158                 movwf   DELAY2
+003A   00A4           00159                 movwf   DELAY3
+                      00160 
+                      00161 
+                      00162 ;WAIT_FOR_PULSE
+                      00163 ;               btfsc   PORTA,4                 ;is switch off (0)
+                      00164 ;               goto    WAIT_FOR_PULSE
+                      00165 
+003B                  00166 OUTLOOP
+003B   080E           00167                 movf    TMR1L,w                 ;endlessly display whatever is in TMR1L
+                      00168                 ;movwf  STORELOW
+                      00169                 ;movf   STORELOW,w
+003C   0087           00170                 movwf   PORTC   
+                      00171                 ;movlw  0x03
+                      00172                 ;movwf  DELAY1
+Message[305]: Using default destination of 1 (file).
+003D   0BA1           00173                 decfsz  DELAY0
+003E   2843           00174                 goto    Third_LOOP
+                      00175                 ;goto   Fourth_LOOP
+003F   2803           00176                 goto    CONT_END
+0040                  00177 Second_LOOP
+                      00178                 ;movlw  0x03
+                      00179                 ;movwf  DELAY2
+Message[305]: Using default destination of 1 (file).
+0040   0BA2           00180                 decfsz  DELAY1
+0041   2843           00181                 goto    Third_LOOP
+                      00182                 ;goto   Fourth_LOOP
+0042   283B           00183                 goto    OUTLOOP
+0043                  00184 Third_LOOP      
+                      00185                 ;movlw  0x03
+                      00186                 ;movwf  DELAY3  
+Message[305]: Using default destination of 1 (file).
+0043   0BA3           00187                 decfsz  DELAY2
+0044   2843           00188                 goto    Third_LOOP
+                      00189                 ;goto   Fourth_LOOP
+0045   2840           00190                 goto    Second_LOOP     
+                      00191 
+0046   2808           00192                 goto    PULSE_AGAIN
+                      00193                 end
+MPASM  4.00 Released                            TMR1_TEST.ASM   1-12-2006  14:56:10         PAGE  5
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+ABDEN                             00000000
+ABDOVF                            00000007
+ADCON0                            0000001F
+ADCON1                            0000009F
+ADCS0                             00000004
+ADCS1                             00000005
+ADCS2                             00000006
+ADDEN                             00000003
+ADFM                              00000007
+ADIE                              00000006
+ADIF                              00000006
+ADON                              00000000
+ADRESH                            0000001E
+ADRESL                            0000009E
+ANS0                              00000000
+ANS1                              00000001
+ANS2                              00000002
+ANS3                              00000003
+ANS4                              00000004
+ANS5                              00000005
+ANS6                              00000006
+ANS7                              00000007
+ANSEL                             0000011E
+ANSELH                            0000011F
+BAUDCTL                           0000009B
+BF                                00000000
+BIGLOOP                           00000020
+BRG0                              00000000
+BRG1                              00000001
+BRG10                             00000002
+BRG11                             00000003
+BRG12                             00000004
+BRG13                             00000005
+BRG14                             00000006
+BRG15                             00000007
+BRG16                             00000003
+BRG2                              00000002
+BRG3                              00000003
+BRG4                              00000004
+BRG5                              00000005
+BRG6                              00000006
+BRG7                              00000007
+BRG8                              00000000
+BRG9                              00000001
+BRGH                              00000002
+C                                 00000000
+C1CH0                             00000000
+C1CH1                             00000001
+C1IE                              00000005
+C1IF                              00000005
+C1OE                              00000005
+C1ON                              00000007
+C1OUT                             00000006
+MPASM  4.00 Released                            TMR1_TEST.ASM   1-12-2006  14:56:10         PAGE  6
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+C1POL                             00000004
+C1R                               00000002
+C1SEN                             00000005
+C1VREN                            00000007
+C2CH0                             00000000
+C2CH1                             00000001
+C2IE                              00000006
+C2IF                              00000006
+C2OE                              00000005
+C2ON                              00000007
+C2OUT                             00000006
+C2POL                             00000004
+C2R                               00000002
+C2REN                             00000004
+C2SYNC                            00000000
+C2VREN                            00000006
+CCP1CON                           00000017
+CCP1IF                            00000002
+CCP1M0                            00000000
+CCP1M1                            00000001
+CCP1M2                            00000002
+CCP1M3                            00000003
+CCPIE                             00000002
+CCPR1H                            00000016
+CCPR1L                            00000015
+CHS0                              00000002
+CHS1                              00000003
+CHS2                              00000004
+CHS3                              00000005
+CKE                               00000006
+CKP                               00000004
+CKTXP                             00000004
+CM1CON0                           00000119
+CM2CON0                           0000011A
+CM2CON1                           0000011B
+CONT1                             00000019
+CONT_END                          00000003
+CONT_FINAL1                       00000022
+CREN                              00000004
+CSRC                              00000007
+DC                                00000001
+DC1B0                             00000004
+DC1B1                             00000005
+DEC_HIGH1                         0000001F
+DEC_LOW1                          0000001D
+DELAY0                            00000021
+DELAY1                            00000022
+DELAY2                            00000023
+DELAY3                            00000024
+D_A_NOT                           00000005
+ECCPAS                            0000001D
+ECCPAS0                           00000004
+ECCPAS1                           00000005
+MPASM  4.00 Released                            TMR1_TEST.ASM   1-12-2006  14:56:10         PAGE  7
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+ECCPAS2                           00000006
+ECCPASE                           00000007
+EEADR                             0000010D
+EEADRH                            0000010F
+EECON1                            0000018C
+EECON2                            0000018D
+EEDATA                            0000010C
+EEDATH                            0000010E
+EEIE                              00000004
+EEIF                              00000004
+EEPGD                             00000007
+F                                 00000001
+FERR                              00000002
+FSR                               00000004
+GIE                               00000007
+GO                                00000001
+GO_DONE                           00000001
+HTS                               00000002
+INDF                              00000000
+INTCON                            0000000B
+INTE                              00000004
+INTEDG                            00000006
+INTF                              00000001
+IOC                               00000096
+IOC0                              00000000
+IOC1                              00000001
+IOC2                              00000002
+IOC3                              00000003
+IOC4                              00000004
+IOC5                              00000005
+IOCA                              00000096
+IOCA0                             00000000
+IOCA1                             00000001
+IOCA2                             00000002
+IOCA3                             00000003
+IOCA4                             00000004
+IOCA5                             00000005
+IOCB                              00000116
+IOCB4                             00000004
+IOCB5                             00000005
+IOCB6                             00000006
+IOCB7                             00000007
+IRCF0                             00000004
+IRCF1                             00000005
+IRCF2                             00000006
+IRP                               00000007
+LTS                               00000001
+Loop                              00000032
+MAIN_LOOP1                        00000016
+MC1OUT                            00000007
+MC2OUT                            00000006
+MSK                               00000093
+NOT_BOD                           00000000
+MPASM  4.00 Released                            TMR1_TEST.ASM   1-12-2006  14:56:10         PAGE  8
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+NOT_DONE                          00000001
+NOT_PD                            00000003
+NOT_POR                           00000001
+NOT_RABPU                         00000007
+NOT_T1SYNC                        00000002
+NOT_TO                            00000004
+OERR                              00000001
+OPTION_REG                        00000081
+OSCCON                            0000008F
+OSCTUNE                           00000090
+OSFIE                             00000007
+OSFIF                             00000007
+OSTS                              00000003
+OUTLOOP                           0000003B
+P                                 00000004
+P1M0                              00000006
+P1M1                              00000007
+PCL                               00000002
+PCLATH                            0000000A
+PCON                              0000008E
+PDC0                              00000000
+PDC1                              00000001
+PDC2                              00000002
+PDC3                              00000003
+PDC4                              00000004
+PDC5                              00000005
+PDC6                              00000006
+PEIE                              00000006
+PIE1                              0000008C
+PIE2                              0000008D
+PIR1                              0000000C
+PIR2                              0000000D
+PORTA                             00000005
+PORTB                             00000006
+PORTC                             00000007
+PR2                               00000092
+PRSEN                             00000007
+PS0                               00000000
+PS1                               00000001
+PS2                               00000002
+PSA                               00000003
+PSSAC0                            00000002
+PSSAC1                            00000003
+PSSBD0                            00000000
+PSSBD1                            00000001
+PSTRCON                           0000019D
+PULSE_AGAIN                       00000008
+PULSE_SETUP                       00000000
+PULSR                             00000002
+PULSS                             00000003
+PWM1CON                           0000001C
+RABIE                             00000003
+RABIF                             00000000
+MPASM  4.00 Released                            TMR1_TEST.ASM   1-12-2006  14:56:10         PAGE  9
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+RCIDL                             00000006
+RCIE                              00000005
+RCIF                              00000005
+RCREG                             0000001A
+RCSTA                             00000018
+RD                                00000000
+RP0                               00000005
+RP1                               00000006
+RX9                               00000006
+RX9D                              00000000
+R_W_NOT                           00000002
+S                                 00000003
+SBODEN                            00000004
+SCS                               00000000
+SENB                              00000003
+SMP                               00000007
+SPBRG                             00000099
+SPBRGH                            0000009A
+SPEN                              00000007
+SR0                               00000006
+SR1                               00000007
+SRCON                             0000019E
+SREN                              00000005
+SSPADD                            00000093
+SSPBUF                            00000013
+SSPCON                            00000014
+SSPEN                             00000005
+SSPIE                             00000003
+SSPIF                             00000003
+SSPM0                             00000000
+SSPM1                             00000001
+SSPM2                             00000002
+SSPM3                             00000003
+SSPMSK                            00000093
+SSPOV                             00000006
+SSPSTAT                           00000094
+STATUS                            00000003
+STOREHIGH                         00000026
+STORELOW                          00000025
+STRA                              00000000
+STRB                              00000001
+STRC                              00000002
+STRD                              00000003
+STRSYNC                           00000004
+SWDTEN                            00000000
+SYNC                              00000004
+Second_LOOP                       00000040
+T0CS                              00000005
+T0IE                              00000005
+T0IF                              00000002
+T0SE                              00000004
+T1CKPS0                           00000004
+T1CKPS1                           00000005
+MPASM  4.00 Released                            TMR1_TEST.ASM   1-12-2006  14:56:10         PAGE 10
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+T1CON                             00000010
+T1GINV                            00000007
+T1GSS                             00000001
+T1IE                              00000000
+T1IF                              00000000
+T1OSCEN                           00000003
+T2CKPS0                           00000000
+T2CKPS1                           00000001
+T2CON                             00000012
+T2IE                              00000001
+T2IF                              00000001
+TMR0                              00000001
+TMR1CS                            00000001
+TMR1GE                            00000006
+TMR1H                             0000000F
+TMR1IE                            00000000
+TMR1IF                            00000000
+TMR1L                             0000000E
+TMR1ON                            00000000
+TMR1_SETUP                        0000002B
+TMR2                              00000011
+TMR2IE                            00000001
+TMR2IF                            00000001
+TMR2ON                            00000002
+TOUTPS0                           00000003
+TOUTPS1                           00000004
+TOUTPS2                           00000005
+TOUTPS3                           00000006
+TRISA                             00000085
+TRISA0                            00000000
+TRISA1                            00000001
+TRISA2                            00000002
+TRISA3                            00000003
+TRISA4                            00000004
+TRISA5                            00000005
+TRISB                             00000086
+TRISB4                            00000004
+TRISB5                            00000005
+TRISB6                            00000006
+TRISB7                            00000007
+TRISC                             00000087
+TRISC0                            00000000
+TRISC1                            00000001
+TRISC2                            00000002
+TRISC3                            00000003
+TRISC4                            00000004
+TRISC5                            00000005
+TRISC6                            00000006
+TRISC7                            00000007
+TRMT                              00000001
+TUN0                              00000000
+TUN1                              00000001
+TUN2                              00000002
+MPASM  4.00 Released                            TMR1_TEST.ASM   1-12-2006  14:56:10         PAGE 11
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TUN3                              00000003
+TUN4                              00000004
+TX9                               00000006
+TX9D                              00000000
+TXEN                              00000005
+TXIE                              00000004
+TXIF                              00000004
+TXREG                             00000019
+TXSTA                             00000098
+Third_LOOP                        00000043
+UA                                00000001
+ULPWUE                            00000005
+VCFG                              00000006
+VP6EN                             00000004
+VR0                               00000000
+VR1                               00000001
+VR2                               00000002
+VR3                               00000003
+VRCON                             00000118
+VRR                               00000005
+W                                 00000000
+WCOL                              00000007
+WDTCON                            00000097
+WDTPS0                            00000001
+WDTPS1                            00000002
+WDTPS2                            00000003
+WDTPS3                            00000004
+WPU                               00000095
+WPUA                              00000095
+WPUA0                             00000000
+WPUA1                             00000001
+WPUA2                             00000002
+WPUA4                             00000004
+WPUA5                             00000005
+WPUB                              00000115
+WPUB4                             00000004
+WPUB5                             00000005
+WPUB6                             00000006
+WPUB7                             00000007
+WR                                00000001
+WREN                              00000002
+WRERR                             00000003
+WUE                               00000001
+Z                                 00000002
+_BOD_NSLEEP                       00003EFF
+_BOD_OFF                          00003CFF
+_BOD_ON                           00003FFF
+_BOD_SBODEN                       00003DFF
+_CPD_OFF                          00003FFF
+_CPD_ON                           00003F7F
+_CP_OFF                           00003FFF
+_CP_ON                            00003FBF
+_EC_OSC                           00003FFB
+MPASM  4.00 Released                            TMR1_TEST.ASM   1-12-2006  14:56:10         PAGE 12
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_EXTRC                            00003FFF
+_EXTRCIO                          00003FFE
+_EXTRC_OSC_CLKOUT                 00003FFF
+_EXTRC_OSC_NOCLKOUT               00003FFE
+_FCMEN_OFF                        000037FF
+_FCMEN_ON                         00003FFF
+_HS_OSC                           00003FFA
+_IESO_OFF                         00003BFF
+_IESO_ON                          00003FFF
+_INTOSC                           00003FFD
+_INTOSCIO                         00003FFC
+_INTRC_OSC_CLKOUT                 00003FFD
+_INTRC_OSC_NOCLKOUT               00003FFC
+_LP_OSC                           00003FF8
+_MCLRE_OFF                        00003FDF
+_MCLRE_ON                         00003FFF
+_PWRTE_OFF                        00003FFF
+_PWRTE_ON                         00003FEF
+_WDT_OFF                          00003FF7
+_WDT_ON                           00003FFF
+_XT_OSC                           00003FF9
+__16F690                          00000001
+
+
+MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
+
+0000 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0040 : XXXXXXX--------- ---------------- ---------------- ----------------
+2000 : -------X-------- ---------------- ---------------- ----------------
+
+All other memory blocks unused.
+
+Program Memory Words Used:    71
+Program Memory Words Free:  4025
+
+
+Errors   :     0
+Warnings :     0 reported,     0 suppressed
+Messages :    13 reported,     0 suppressed
+
+

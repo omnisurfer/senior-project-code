@@ -1,0 +1,101 @@
+MPASM  5.03                       A2D_GEN.ASM   9-3-2006  20:11:31         PAGE  1
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00001 ;This code is for general a2d conversions for most of the sensors
+                      00002 ;we will use. 
+                      00003         cblock 0x26
+  00000026            00004 A2DCH                                   ;identifies which A2D ch to use
+                      00005                                                 ;MAKE SURE THIS IS AN ANALOG SOURCE 
+                      00006                                                 ;THAT IS SELECTED! IF A2D CH selected is on
+                      00007                                                 ;a pin that is configured as a digi i/o it              
+                      00008                                                 ;can burn the chip!
+  00000027            00009 A2DCON
+                      00010         endc
+                      00011                 
+                      00012         org 0x0350
+0350                  00013 a2d_sub
+Error[113]  : Symbol not previously defined (STATUS)
+Error[113]  : Symbol not previously defined (RP0)
+0350   1000           00014         bcf             STATUS,RP0      ;
+Error[113]  : Symbol not previously defined (STATUS)
+Error[113]  : Symbol not previously defined (RP1)
+0351   1000           00015         bcf             STATUS,RP1      ;get to Bank 0
+0352   0826           00016         movf    A2DCH,w         ;get which analog ch
+Error[113]  : Symbol not previously defined (ADCON0)
+0353   0080           00017         movwf   ADCON0          ;configure A2D for Channel, Left justified
+Error[113]  : Symbol not previously defined (ADCON0)
+0354   1400           00018         bsf             ADCON0,0        ;turn on A2D
+0355   0000           00019         nop                                     ;wait 5us for A2D amp to settle and capacitor to charge.
+0356   0000           00020         nop                                     ;wait 1uS
+0357   0000           00021         nop                                     ;wait 
+0358   0000           00022         nop                                     ;wait 2uS
+0359   0000           00023         nop                                     ;wait 
+035A   0000           00024         nop                                     ;3us
+035B   0000           00025         nop
+035C   0000           00026         nop                                     ;4us
+035D   0000           00027         nop
+035E   0000           00028         nop                                     ;5us
+035F   0000           00029         nop
+0360   0000           00030         nop                                     ;6us
+Error[113]  : Symbol not previously defined (ADCON0)
+Error[113]  : Symbol not previously defined (GO)
+0361   1400           00031         bsf             ADCON0,GO       ;start conversion
+Error[113]  : Symbol not previously defined (ADCON0)
+Error[113]  : Symbol not previously defined (GO)
+0362   1C00           00032         btfss   ADCON0,GO       ;this bit will change to zero when the conversion is complete
+0363   2???           00033         goto    $-1                     ;keep waiting until the conversion is completed
+                      00034 
+                      00035 ;Setup Data for serial_io
+0364   0826           00036                 movf    A2DCH,w                 ;Identify Sensor, probably use A2DCH value for this...
+Error[113]  : Symbol not previously defined (STORETYPE)
+0365   0080           00037                 movwf   STORETYPE
+                      00038 
+Error[113]  : Symbol not previously defined (ADRESH)
+0366   0800           00039                 movf    ADRESH,w                ;get AD High Byte
+Error[113]  : Symbol not previously defined (STOREHIGH)
+0367   0080           00040                 movwf   STOREHIGH               ;store AD High Byte
+MPASM  5.03                       A2D_GEN.ASM   9-3-2006  20:11:31         PAGE  2
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00041 
+Error[113]  : Symbol not previously defined (STATUS)
+Error[113]  : Symbol not previously defined (RP0)
+0368   1400           00042                 bsf             STATUS,RP0              ;
+Error[113]  : Symbol not previously defined (STATUS)
+Error[113]  : Symbol not previously defined (RP1)
+0369   1000           00043                 bcf             STATUS,RP1              ;get to Bank 1 for low byte
+                      00044 
+Error[113]  : Symbol not previously defined (ADRESL)
+036A   0800           00045                 movf    ADRESL,w                ;get AD Low Byte
+Error[113]  : Symbol not previously defined (STOREHIGH)
+036B   0080           00046                 movwf   STOREHIGH               ;store AD Low Byte
+                      00047 
+Error[113]  : Symbol not previously defined (SER_DATA_OUT)
+036C   2000           00048                 CALL    SER_DATA_OUT    ;send the data
+                      00049 
+036D   0008           00050                 RETURN
+                      00051         
+Error[129]  : Expected (END)
+MPASM  5.03                       A2D_GEN.ASM   9-3-2006  20:11:31         PAGE  3
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+A2DCH                             00000026
+A2DCON                            00000027
+_.org_0_0363                      00000363
+__16F690                          00000001
+a2d_sub                           00000350
+
+Errors   :    21
+Warnings :     0 reported,     0 suppressed
+Messages :     0 reported,     0 suppressed
+
+

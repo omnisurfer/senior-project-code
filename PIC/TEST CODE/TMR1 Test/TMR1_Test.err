@@ -1,0 +1,13 @@
+Message[302] C:\PICCODE\TMR1 TEST\TMR1_TEST.ASM 50 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\PICCODE\TMR1 TEST\TMR1_TEST.ASM 60 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\PICCODE\TMR1 TEST\TMR1_TEST.ASM 62 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\PICCODE\TMR1 TEST\TMR1_TEST.ASM 65 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[305] C:\PICCODE\TMR1 TEST\TMR1_TEST.ASM 96 : Using default destination of 1 (file).
+Message[305] C:\PICCODE\TMR1 TEST\TMR1_TEST.ASM 106 : Using default destination of 1 (file).
+Message[305] C:\PICCODE\TMR1 TEST\TMR1_TEST.ASM 110 : Using default destination of 1 (file).
+Message[302] C:\PICCODE\TMR1 TEST\TMR1_TEST.ASM 126 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\PICCODE\TMR1 TEST\TMR1_TEST.ASM 128 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\PICCODE\TMR1 TEST\TMR1_TEST.ASM 136 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[305] C:\PICCODE\TMR1 TEST\TMR1_TEST.ASM 173 : Using default destination of 1 (file).
+Message[305] C:\PICCODE\TMR1 TEST\TMR1_TEST.ASM 180 : Using default destination of 1 (file).
+Message[305] C:\PICCODE\TMR1 TEST\TMR1_TEST.ASM 187 : Using default destination of 1 (file).

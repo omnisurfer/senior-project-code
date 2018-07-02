@@ -1,0 +1,39 @@
+Message[302] C:\PIC\EXPERIMENTAL CODE\INIT_PIC.ASM 13 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\PIC\EXPERIMENTAL CODE\INIT_PIC.ASM 19 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\PIC\EXPERIMENTAL CODE\INIT_PIC.ASM 21 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\PIC\EXPERIMENTAL CODE\INIT_PIC.ASM 23 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\PIC\EXPERIMENTAL CODE\INIT_PIC.ASM 34 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Error[118]   C:\PIC\EXPERIMENTAL CODE\PING_RA4.ASM 7 : Overwriting previous address contents (000F)
+Error[118]   C:\PIC\EXPERIMENTAL CODE\PING_RA4.ASM 7 : Overwriting previous address contents (000F)
+Error[118]   C:\PIC\EXPERIMENTAL CODE\PING_RA4.ASM 8 : Overwriting previous address contents (0010)
+Error[118]   C:\PIC\EXPERIMENTAL CODE\PING_RA4.ASM 8 : Overwriting previous address contents (0010)
+Message[302] C:\PIC\EXPERIMENTAL CODE\PING_RA4.ASM 9 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Error[118]   C:\PIC\EXPERIMENTAL CODE\PING_RA4.ASM 9 : Overwriting previous address contents (0011)
+Error[118]   C:\PIC\EXPERIMENTAL CODE\PING_RA4.ASM 9 : Overwriting previous address contents (0011)
+Error[118]   C:\PIC\EXPERIMENTAL CODE\PING_RA4.ASM 10 : Overwriting previous address contents (0012)
+Error[118]   C:\PIC\EXPERIMENTAL CODE\PING_RA4.ASM 10 : Overwriting previous address contents (0012)
+Message[302] C:\PIC\EXPERIMENTAL CODE\PING_RA4.ASM 13 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Warning[207] C:\PIC\EXPERIMENTAL CODE\PING_RA4.ASM 26 : Found label after column 1. (DEC_LOW0)
+Message[305] C:\PIC\EXPERIMENTAL CODE\PING_RA4.ASM 27 : Using default destination of 1 (file).
+Warning[207] C:\PIC\EXPERIMENTAL CODE\PING_RA4.ASM 30 : Found label after column 1. (DEC_HIGH0)
+Message[305] C:\PIC\EXPERIMENTAL CODE\PING_RA4.ASM 31 : Using default destination of 1 (file).
+Warning[207] C:\PIC\EXPERIMENTAL CODE\PING_RA4.ASM 44 : Found label after column 1. (DEC_LOW1)
+Message[305] C:\PIC\EXPERIMENTAL CODE\PING_RA4.ASM 45 : Using default destination of 1 (file).
+Warning[207] C:\PIC\EXPERIMENTAL CODE\PING_RA4.ASM 48 : Found label after column 1. (DEC_HIGH1)
+Message[305] C:\PIC\EXPERIMENTAL CODE\PING_RA4.ASM 49 : Using default destination of 1 (file).
+Message[302] C:\PIC\EXPERIMENTAL CODE\PING_RA4.ASM 66 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\PIC\EXPERIMENTAL CODE\PING_RA4.ASM 73 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\PIC\EXPERIMENTAL CODE\PING_RA4.ASM 88 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\PIC\EXPERIMENTAL CODE\PING_RA4.ASM 91 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\PIC\EXPERIMENTAL CODE\PING_RA4.ASM 94 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Warning[207] C:\PIC\EXPERIMENTAL CODE\PING_RA4.ASM 102 : Found label after column 1. (DEC_LOW2)
+Message[305] C:\PIC\EXPERIMENTAL CODE\PING_RA4.ASM 103 : Using default destination of 1 (file).
+Message[302] C:\PIC\EXPERIMENTAL CODE\SERIAL_IO.ASM 19 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\PIC\EXPERIMENTAL CODE\SERIAL_IO.ASM 27 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\PIC\EXPERIMENTAL CODE\SERIAL_IO.ASM 32 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\PIC\EXPERIMENTAL CODE\SERIAL_IO.ASM 38 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\PIC\EXPERIMENTAL CODE\SERIAL_IO.ASM 43 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\PIC\EXPERIMENTAL CODE\SERIAL_IO.ASM 47 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\PIC\EXPERIMENTAL CODE\SERIAL_IO.ASM 52 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\PIC\EXPERIMENTAL CODE\SERIAL_IO.ASM 56 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\PIC\EXPERIMENTAL CODE\SERIAL_IO.ASM 65 : Register in operand not in bank 0.  Ensure that bank bits are correct.

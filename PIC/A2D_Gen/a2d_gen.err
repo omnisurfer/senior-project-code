@@ -1,0 +1,4 @@
+Message[302] C:\PIC\A2D_GEN\A2D_GEN.ASM 15 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\PIC\A2D_GEN\A2D_GEN.ASM 16 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\PIC\A2D_GEN\A2D_GEN.ASM 18 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\PIC\A2D_GEN\A2D_GEN.ASM 24 : Register in operand not in bank 0.  Ensure that bank bits are correct.

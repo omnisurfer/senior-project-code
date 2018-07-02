@@ -1,0 +1,16 @@
+Message[302] C:\PIC\PING SENSOR - RA4\PINGCODERA4.ASM 44 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\PIC\PING SENSOR - RA4\PINGCODERA4.ASM 48 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\PIC\PING SENSOR - RA4\PINGCODERA4.ASM 50 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\PIC\PING SENSOR - RA4\PINGCODERA4.ASM 53 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Warning[207] C:\PIC\PING SENSOR - RA4\PINGCODERA4.ASM 67 : Found label after column 1. (DEC_LOW0)
+Message[305] C:\PIC\PING SENSOR - RA4\PINGCODERA4.ASM 68 : Using default destination of 1 (file).
+Warning[207] C:\PIC\PING SENSOR - RA4\PINGCODERA4.ASM 71 : Found label after column 1. (DEC_HIGH0)
+Message[305] C:\PIC\PING SENSOR - RA4\PINGCODERA4.ASM 72 : Using default destination of 1 (file).
+Warning[207] C:\PIC\PING SENSOR - RA4\PINGCODERA4.ASM 85 : Found label after column 1. (DEC_LOW1)
+Message[305] C:\PIC\PING SENSOR - RA4\PINGCODERA4.ASM 86 : Using default destination of 1 (file).
+Warning[207] C:\PIC\PING SENSOR - RA4\PINGCODERA4.ASM 89 : Found label after column 1. (DEC_HIGH1)
+Message[305] C:\PIC\PING SENSOR - RA4\PINGCODERA4.ASM 90 : Using default destination of 1 (file).
+Message[302] C:\PIC\PING SENSOR - RA4\PINGCODERA4.ASM 107 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\PIC\PING SENSOR - RA4\PINGCODERA4.ASM 114 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Warning[207] C:\PIC\PING SENSOR - RA4\PINGCODERA4.ASM 136 : Found label after column 1. (DEC_LOW2)
+Message[305] C:\PIC\PING SENSOR - RA4\PINGCODERA4.ASM 137 : Using default destination of 1 (file).

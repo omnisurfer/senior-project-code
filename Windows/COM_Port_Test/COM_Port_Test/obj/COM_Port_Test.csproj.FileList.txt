@@ -1,0 +1,16 @@
+obj\Release\ResolveAssemblyReference.cache
+obj\Release\COM_Port_Test.Properties.Resources.resources
+obj\Release\COM_Port_Test.csproj.GenerateResource.Cache
+bin\Release\COM_Port_Test.exe
+bin\Release\COM_Port_Test.pdb
+obj\Release\COM_Port_Test.exe
+obj\Release\COM_Port_Test.pdb
+bin\Debug\COM_Port_Test.exe
+bin\Debug\COM_Port_Test.pdb
+obj\Debug\ResolveAssemblyReference.cache
+obj\Debug\COM_Port_Test.Properties.Resources.resources
+obj\Debug\COM_Port_Test.csproj.GenerateResource.Cache
+obj\Debug\COM_Port_Test.exe
+obj\Debug\COM_Port_Test.pdb
+obj\Debug\COM_Port_Test.frmMain.resources
+obj\Release\COM_Port_Test.frmMain.resources

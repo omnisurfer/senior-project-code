@@ -1,0 +1,782 @@
+MPASM  5.01                      PING_SER.ASM   2-5-2006  21:33:43         PAGE  1
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00001 ;*****PING With Serial Data Return Test
+                      00002 ;This code is to test how data return the ping sensor 
+                      00003 ;witht the serial port code
+                      00004 
+                      00005 #include <p16F690.inc>
+                      00001         LIST
+                      00002 ; P16F690.INC  Standard Header File, Version 1.00    Microchip Technology, Inc.
+                      00607         LIST
+2007   33D4           00006         __config (_INTRC_OSC_NOCLKOUT & _WDT_OFF & _PWRTE_OFF & _MCLRE_OFF & _CP_OFF & _IESO_OFF & _FCME
+                            N_OFF)
+0000                  00007         org 0
+0000                  00008 Init_PIC                                        
+0000   1683           00009                 bsf             STATUS,RP0              ;-------------
+0001   1303           00010                 bcf             STATUS,RP1              ;get to bank 1
+0002   3071           00011                 movlw   b'01110001'             ;internal clock, 2MHz OSC, 1MHz system, 1us per tick
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0003   008F           00012                 movwf   OSCCON
+                      00013 
+0004                  00014 Init_USUART                                             ;get USUART running
+0004   1683           00015                 bsf             STATUS,RP0              ;get to bank 1
+0005   1303           00016                 bcf             STATUS,RP1              
+0006   3020           00017                 movlw   b'00100000'             ;8 bit, tx enabled, Async, Low Speed
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0007   0098           00018                 movwf   TXSTA
+0008   3000           00019                 movlw   b'00000000'             ;Non-invert data, 8-bit gen, no interrupts, no auto baud
+                             detect
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0009   009B           00020                 movwf   BAUDCTL
+000A   3033           00021                 movlw   b'00110011'             ;hex for 51 which should give 2.4k baud, for 16 bit mode
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+000B   0099           00022                 movwf   SPBRG
+                      00023 
+000C   1283           00024                 bcf             STATUS,RP0              ;get to bank 0
+000D   3090           00025                 movlw   b'10010000'             ;port enabled, 8-bit, cont rec
+000E   0098           00026                 movwf   RCSTA
+                      00027 
+000F                  00028 TEST0
+000F   2250           00029                 CALL    PING_RA4
+                      00030                 ;CALL   SER_DATA_OUT
+0010   280F           00031                 goto    TEST0
+                      00032                                                                 ;note: must explicit org & no end statme
+                            nt
+                      00033 
+                      00034 #include<ping_ra4.asm>                  ;including the ping sensor asm
+                      00001 ;this is the PING))) Sensor routine on pin RA4
+                      00002 ;Note: This routine will call a 2nd routine, 
+                      00003 ;the serial IO in order to output its data
+0250                  00004                 org             0x0250
+0250                  00005 PING_RA4
+0250   3000           00006                 movlw   0x00
+0251   1283           00007                 bcf             STATUS,RP0              ;-------------  
+0252   1703           00008                 bsf             STATUS,RP1              ;get to bank 2
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+MPASM  5.01                      PING_SER.ASM   2-5-2006  21:33:43         PAGE  2
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0253   119E           00009                 bcf             ANSEL,3                 ;Disable Analog on Pin RA4
+0254   1683           00010                 bsf             STATUS,RP0              ;-------------
+0255   1303           00011                 bcf             STATUS,RP1              ;get to bank 1
+0256   3000           00012                 movlw   b'00000000'             ;make PORTA all out
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0257   0085           00013                 movwf   TRISA
+                      00014         
+0258   1283           00015                 bcf             STATUS,RP0              ;get to bank 0
+0259   1303           00016                 bcf             STATUS,RP1              ;get back to reg 0
+025A   3000           00017                 movlw   b'00000000'             ;put a '0' on the port for transition
+025B   0085           00018                 movwf   PORTA
+                      00019 
+025C                  00020 PULSE_DELAY_LOOP0                               ;aprox 1.9275ms '0' "pulse" for RA4
+025C   30FF           00021                 movlw   0xff;
+025D   0081           00022                 movwf   TMR0                    ;low bits, using timer regsiters to save space
+025E   3005           00023                 movlw   0x05;
+025F   0091           00024                 movwf   TMR2                    ;high bits
+                      00025 
+Warning[207]: Found label after column 1. (DEC_LOW0)
+0260                  00026         DEC_LOW0
+Message[305]: Using default destination of 1 (file).
+0260   0B81           00027                 decfsz  TMR0                    ;3 instructions per loop
+0261   2A60           00028                 goto    DEC_LOW0
+                      00029 
+Warning[207]: Found label after column 1. (DEC_HIGH0)
+0262                  00030         DEC_HIGH0
+Message[305]: Using default destination of 1 (file).
+0262   0B91           00031                 decfsz  TMR2                    ;3 more instructions per loop in addition to inner loop
+0263   2A60           00032                 goto    DEC_LOW0
+                      00033 
+                      00034 
+0264   3010           00035                 movlw   b'00010000'             ;put a '1' on the port
+0265   0085           00036                 movwf   PORTA
+                      00037         
+0266                  00038 PULSE_DELAY_LOOP1                               ;aprox 75ms pulse for RA4
+0266   30FF           00039                 movlw   0xff                    ;256            
+0267   0081           00040                 movwf   TMR0                    ;low bits
+0268   30FF           00041                 movlw   0xff;0xc3                       ;dec 195
+0269   0091           00042                 movwf   TMR2                    ;high bits
+                      00043 
+Warning[207]: Found label after column 1. (DEC_LOW1)
+026A                  00044         DEC_LOW1
+Message[305]: Using default destination of 1 (file).
+026A   0B81           00045                 decfsz  TMR0                    ;3 instructions per loop
+026B   2A6A           00046                 goto    DEC_LOW1
+                      00047 
+Warning[207]: Found label after column 1. (DEC_HIGH1)
+026C                  00048         DEC_HIGH1
+Message[305]: Using default destination of 1 (file).
+026C   0B91           00049                 decfsz  TMR2                    ;3 more instructions per loop in addition to inner loop
+026D   2A6A           00050                 goto    DEC_LOW1                
+                      00051 
+                      00052                 ;Time Calculation:
+MPASM  5.01                      PING_SER.ASM   2-5-2006  21:33:43         PAGE  3
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00053                 ;256 loops * 3 ops per loop = 768 / 2M ops = 384us per run
+                      00054                 ;(768 + 3/outer run) * 195 outer runs  / 2M = 75.1725ms
+                      00055 
+                      00056                 ;Clr TMR1 Registers
+026E   018E           00057                 clrf    TMR1L                   ;clear TMR1 Low, 6us
+026F   018F           00058                 clrf    TMR1H                   ;clear TMR1 High, 7us
+                      00059 
+0270   3000           00060                 movlw   b'00000000'             ;clear RA4
+0271   0085           00061                 movwf   PORTA                   ;cleared, now have 750us until return pulse
+                      00062 
+0272   1683           00063                 bsf             STATUS,RP0              ;get to bank 1
+0273   1303           00064                 bcf             STATUS,RP1
+0274   303F           00065                 movlw   b'00111111'             
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0275   0085           00066                 movwf   TRISA                   ;make RA4 input
+                      00067 
+0276                  00068 TMR1_SETUP              ;get TMR1 ready 
+0276   1283           00069                 bcf             STATUS,RP0
+0277   1703           00070                 bsf             STATUS,RP1              ;get to bank 2
+                      00071                                                                 ;setup CM2CON1 regsiter - already in ban
+                            k 1
+0278   3002           00072                 movlw   b'00000010'             ;set TMR1 to be gated by RA4
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0279   009B           00073                 movwf   CM2CON1
+                      00074 
+027A   1303           00075                 bcf             STATUS,RP1              ;get to bank 0
+027B   30C1           00076                 movlw   b'11000001'             ;Active High, Gated, max prescale (later 1us per tic), i
+                            nternal clock, TMR1 active
+027C   0090           00077                 movwf   T1CON
+                      00078 
+027D                  00079 WAIT_FOR_PULSE
+027D   1E05           00080                 btfss   PORTA,4                 ;is Pulse not here?
+027E   2A7D           00081                 goto    WAIT_FOR_PULSE
+027F                  00082 WAIT_FOR_LOW_PULSE
+027F   1A05           00083                 btfsc   PORTA,4                 ;is Pulse still there?
+0280   2A7F           00084                 goto    WAIT_FOR_LOW_PULSE
+                      00085 
+                      00086 ;Get Timer1 data ready for Serial routine
+0281   3021           00087                 movlw   0x21                    ;Identify Sensor
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0282   00A0           00088                 movwf   STORETYPE
+                      00089 
+0283   080E           00090                 movf    TMR1L,w                 ;get Timer1 Low Byte
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0284   00A1           00091                 movwf   STORELOW                ;store Timer1 Low Byte
+                      00092 
+0285   080F           00093                 movf    TMR1H,w                 ;get Timer1 High Byte
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0286   00A2           00094                 movwf   STOREHIGH               ;store Timer1 High Byte
+                      00095 
+0287   2790           00096                 CALL    SER_DATA_OUT
+                      00097 
+0288                  00098 PULSE_DELAY_LOOP2                               ;aprox 1.9275ms '0' "pulse" for RA4
+MPASM  5.01                      PING_SER.ASM   2-5-2006  21:33:43         PAGE  4
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0288   30FF           00099                 movlw   0xff;
+0289   0081           00100                 movwf   TMR0                    ;low bits, using timer regsiters to save space
+028A   3015           00101                 movlw   0x15;
+028B   0091           00102                 movwf   TMR2                    ;high bits
+                      00103 
+Warning[207]: Found label after column 1. (DEC_LOW0a)
+028C                  00104         DEC_LOW0a
+Message[305]: Using default destination of 1 (file).
+028C   0B81           00105                 decfsz  TMR0                    ;3 instructions per loop
+028D   2A8C           00106                 goto    DEC_LOW0a
+                      00107 
+Warning[207]: Found label after column 1. (DEC_HIGH0a)
+028E                  00108         DEC_HIGH0a
+Message[305]: Using default destination of 1 (file).
+028E   0B91           00109                 decfsz  TMR2                    ;3 more instructions per loop in addition to inner loop
+028F   2A8C           00110                 goto    DEC_LOW0a
+                      00111 
+0290   0008           00112                 RETURN                                  ;return for another value
+                      00113                 ;goto   PING_RA4
+                      00114                 
+                      00035 #include<serial_io.asm>                 ;the serial IO asm
+                      00001 ;Serial Storage Variables               
+                      00002                 cblock  0x120
+  00000120            00003 STORETYPE                                               ;place for data type identifier
+  00000121            00004 STORELOW                                                ;place for data low byte
+  00000122            00005 STOREHIGH                                               ;place for data high byte
+                      00006                 endc
+                      00007 
+                      00008 ;Serial Port Routin Orgs Here
+0790                  00009                 org     0790                            ;right now about as far away as I can get with d
+                            irect addressing
+                      00010                                                                 ;will have to revise sometime later
+0790                  00011 SER_DATA_OUT
+                      00012 ;1st BYTE, ascii check
+0790   1283           00013                 bcf             STATUS,RP0              ;make sure in bank 0
+0791   1303           00014                 bcf             STATUS,RP1
+0792   30FB           00015                 movlw   0xFB                    ;load ascii check
+0793   0099           00016                 movwf   TXREG                   ;send byte to TXREG
+0794   1683           00017                 bsf             STATUS,RP0              ;get to bank 1
+0795                  00018 WAIT0
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0795   1C98           00019                 btfss   TXSTA,1                 ;wait for data to TX
+0796   2F95           00020                 goto    WAIT0                   ;could use $-1, PC-1, but kinda hard to follow
+0797   1283           00021                 bcf             STATUS,RP0              ;get back to bank 0
+                      00022 
+                      00023 ;2nd BYTE, ascii check
+0798   0099           00024                 movwf   TXREG                   ;put data in reg
+0799   1683           00025                 bsf             STATUS,RP0              ;get to bank 1
+079A                  00026 WAIT1                                                   
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+079A   1C98           00027                 btfss   TXSTA,1                 ;again wait for byte to TX
+079B   2F9A           00028                 goto    WAIT1
+079C   1283           00029                 bcf             STATUS,RP0
+MPASM  5.01                      PING_SER.ASM   2-5-2006  21:33:43         PAGE  5
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00030 
+                      00031 ;3rd BYTE, data type
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+079D   0820           00032                 movfw   STORETYPE               ;load data type from reg storetype, ASCII ! for test
+                      00033                                                                 ;interesting note: you can actually get 
+                            addys from value locations by 
+                      00034                                                                 ;moving the label as a literal it seems.
+                            ..
+079E   0099           00035                 movwf   TXREG                   ;put data in reg
+079F   1683           00036                 bsf             STATUS,RP0              ;get to bank 1
+07A0                  00037 WAIT2
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+07A0   1C98           00038                 btfss   TXSTA,1
+07A1   2FA0           00039                 goto    WAIT2
+07A2   1283           00040                 bcf             STATUS,RP0
+                      00041 
+                      00042 ;4th BYTE, data high byte
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+07A3   0822           00043                 movfw   STOREHIGH               ;load HIGH Byte
+07A4   0099           00044                 movwf   TXREG                   ;put data in reg
+07A5   1683           00045                 bsf             STATUS,RP0              ;get to bank 1
+07A6                  00046 WAIT3
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+07A6   1C98           00047                 btfss   TXSTA,1
+07A7   2FA6           00048                 goto    WAIT3
+07A8   1283           00049                 bcf             STATUS,RP0
+                      00050 
+                      00051 ;5th BYTE, data low byte
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+07A9   0821           00052                 movfw   STORELOW                ;load LOW BYTE
+07AA   0099           00053                 movwf   TXREG                   ;put data in reg
+07AB   1683           00054                 bsf             STATUS,RP0              ;get to bank 1
+07AC                  00055 WAIT4
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+07AC   1C98           00056                 btfss   TXSTA,1
+07AD   2FAC           00057                 goto    WAIT4
+07AE   1283           00058                 bcf             STATUS,RP0
+                      00059 
+                      00060 ;6th BYTE, end of data byte
+07AF   3024           00061                 movlw   0x24                    ;load ascii $
+07B0   0099           00062                 movwf   TXREG                   ;put data in reg
+07B1   1683           00063                 bsf             STATUS,RP0              ;get to bank 1
+07B2                  00064 WAIT5
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+07B2   1C98           00065                 btfss   TXSTA,1
+07B3   2FB2           00066                 goto    WAIT5
+07B4   1283           00067                 bcf             STATUS,RP0
+                      00068 
+07B5   0008           00069                 RETURN
+                      00070 
+                      00036 
+                      00037 
+                      00038                 end
+MPASM  5.01                      PING_SER.ASM   2-5-2006  21:33:43         PAGE  6
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+ABDEN                             00000000
+ABDOVF                            00000007
+ADCON0                            0000001F
+ADCON1                            0000009F
+ADCS0                             00000004
+ADCS1                             00000005
+ADCS2                             00000006
+ADDEN                             00000003
+ADFM                              00000007
+ADIE                              00000006
+ADIF                              00000006
+ADON                              00000000
+ADRESH                            0000001E
+ADRESL                            0000009E
+ANS0                              00000000
+ANS1                              00000001
+ANS10                             00000002
+ANS11                             00000003
+ANS2                              00000002
+ANS3                              00000003
+ANS4                              00000004
+ANS5                              00000005
+ANS6                              00000006
+ANS7                              00000007
+ANS8                              00000000
+ANS9                              00000001
+ANSEL                             0000011E
+ANSELH                            0000011F
+BAUDCTL                           0000009B
+BF                                00000000
+BRG0                              00000000
+BRG1                              00000001
+BRG10                             00000002
+BRG11                             00000003
+BRG12                             00000004
+BRG13                             00000005
+BRG14                             00000006
+BRG15                             00000007
+BRG16                             00000003
+BRG2                              00000002
+BRG3                              00000003
+BRG4                              00000004
+BRG5                              00000005
+BRG6                              00000006
+BRG7                              00000007
+BRG8                              00000000
+BRG9                              00000001
+BRGH                              00000002
+C                                 00000000
+C1CH0                             00000000
+C1CH1                             00000001
+C1IE                              00000005
+C1IF                              00000005
+MPASM  5.01                      PING_SER.ASM   2-5-2006  21:33:43         PAGE  7
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+C1OE                              00000005
+C1ON                              00000007
+C1OUT                             00000006
+C1POL                             00000004
+C1R                               00000002
+C1SEN                             00000005
+C1VREN                            00000007
+C2CH0                             00000000
+C2CH1                             00000001
+C2IE                              00000006
+C2IF                              00000006
+C2OE                              00000005
+C2ON                              00000007
+C2OUT                             00000006
+C2POL                             00000004
+C2R                               00000002
+C2REN                             00000004
+C2SYNC                            00000000
+C2VREN                            00000006
+CCP1CON                           00000017
+CCP1IE                            00000002
+CCP1IF                            00000002
+CCP1M0                            00000000
+CCP1M1                            00000001
+CCP1M2                            00000002
+CCP1M3                            00000003
+CCPR1H                            00000016
+CCPR1L                            00000015
+CHS0                              00000002
+CHS1                              00000003
+CHS2                              00000004
+CHS3                              00000005
+CKE                               00000006
+CKP                               00000004
+CM1CON0                           00000119
+CM2CON0                           0000011A
+CM2CON1                           0000011B
+CREN                              00000004
+CSRC                              00000007
+D                                 00000005
+DATA_ADDRESS                      00000005
+DC                                00000001
+DC1B0                             00000004
+DC1B1                             00000005
+DEC_HIGH0                         00000262
+DEC_HIGH0a                        0000028E
+DEC_HIGH1                         0000026C
+DEC_LOW0                          00000260
+DEC_LOW0a                         0000028C
+DEC_LOW1                          0000026A
+D_A                               00000005
+ECCPAS                            0000001D
+ECCPAS0                           00000004
+MPASM  5.01                      PING_SER.ASM   2-5-2006  21:33:43         PAGE  8
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+ECCPAS1                           00000005
+ECCPAS2                           00000006
+ECCPASE                           00000007
+EEADR                             0000010D
+EEADRH                            0000010F
+EECON1                            0000018C
+EECON2                            0000018D
+EEDAT                             0000010C
+EEDATA                            0000010C
+EEDATH                            0000010E
+EEIE                              00000004
+EEIF                              00000004
+EEPGD                             00000007
+F                                 00000001
+FERR                              00000002
+FSR                               00000004
+GIE                               00000007
+GO                                00000001
+GO_DONE                           00000001
+HTS                               00000002
+I2C_DATA                          00000005
+I2C_READ                          00000002
+I2C_START                         00000003
+I2C_STOP                          00000004
+INDF                              00000000
+INTCON                            0000000B
+INTE                              00000004
+INTEDG                            00000006
+INTF                              00000001
+IOC                               00000096
+IOC0                              00000000
+IOC1                              00000001
+IOC2                              00000002
+IOC3                              00000003
+IOC4                              00000004
+IOC5                              00000005
+IOCA                              00000096
+IOCA0                             00000000
+IOCA1                             00000001
+IOCA2                             00000002
+IOCA3                             00000003
+IOCA4                             00000004
+IOCA5                             00000005
+IOCB                              00000116
+IOCB4                             00000004
+IOCB5                             00000005
+IOCB6                             00000006
+IOCB7                             00000007
+IRCF0                             00000004
+IRCF1                             00000005
+IRCF2                             00000006
+IRP                               00000007
+Init_PIC                          00000000
+MPASM  5.01                      PING_SER.ASM   2-5-2006  21:33:43         PAGE  9
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+Init_USUART                       00000004
+LTS                               00000001
+MC1OUT                            00000007
+MC2OUT                            00000006
+MSK                               00000093
+NOT_A                             00000005
+NOT_ADDRESS                       00000005
+NOT_BOR                           00000000
+NOT_DONE                          00000001
+NOT_PD                            00000003
+NOT_POR                           00000001
+NOT_RABPU                         00000007
+NOT_T1SYNC                        00000002
+NOT_TO                            00000004
+NOT_W                             00000002
+NOT_WRITE                         00000002
+OERR                              00000001
+OPTION_REG                        00000081
+OSCCON                            0000008F
+OSCTUNE                           00000090
+OSFIE                             00000007
+OSFIF                             00000007
+OSTS                              00000003
+P                                 00000004
+P1M0                              00000006
+P1M1                              00000007
+PCL                               00000002
+PCLATH                            0000000A
+PCON                              0000008E
+PDC0                              00000000
+PDC1                              00000001
+PDC2                              00000002
+PDC3                              00000003
+PDC4                              00000004
+PDC5                              00000005
+PDC6                              00000006
+PEIE                              00000006
+PIE1                              0000008C
+PIE2                              0000008D
+PING_RA4                          00000250
+PIR1                              0000000C
+PIR2                              0000000D
+PORTA                             00000005
+PORTB                             00000006
+PORTC                             00000007
+PR2                               00000092
+PRSEN                             00000007
+PS0                               00000000
+PS1                               00000001
+PS2                               00000002
+PSA                               00000003
+PSSAC0                            00000002
+PSSAC1                            00000003
+MPASM  5.01                      PING_SER.ASM   2-5-2006  21:33:43         PAGE 10
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+PSSBD0                            00000000
+PSSBD1                            00000001
+PSTRCON                           0000019D
+PULSE_DELAY_LOOP0                 0000025C
+PULSE_DELAY_LOOP1                 00000266
+PULSE_DELAY_LOOP2                 00000288
+PULSR                             00000002
+PULSS                             00000003
+PWM1CON                           0000001C
+R                                 00000002
+RABIE                             00000003
+RABIF                             00000000
+RCIDL                             00000006
+RCIE                              00000005
+RCIF                              00000005
+RCREG                             0000001A
+RCSTA                             00000018
+RD                                00000000
+READ_WRITE                        00000002
+RP0                               00000005
+RP1                               00000006
+RX9                               00000006
+RX9D                              00000000
+R_W                               00000002
+S                                 00000003
+SBOREN                            00000004
+SCKP                              00000004
+SCS                               00000000
+SENB                              00000003
+SER_DATA_OUT                      00000790
+SMP                               00000007
+SPBRG                             00000099
+SPBRGH                            0000009A
+SPEN                              00000007
+SR0                               00000006
+SR1                               00000007
+SRCON                             0000019E
+SREN                              00000005
+SSPADD                            00000093
+SSPBUF                            00000013
+SSPCON                            00000014
+SSPEN                             00000005
+SSPIE                             00000003
+SSPIF                             00000003
+SSPM0                             00000000
+SSPM1                             00000001
+SSPM2                             00000002
+SSPM3                             00000003
+SSPMSK                            00000093
+SSPOV                             00000006
+SSPSTAT                           00000094
+STATUS                            00000003
+STOREHIGH                         00000122
+MPASM  5.01                      PING_SER.ASM   2-5-2006  21:33:43         PAGE 11
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+STORELOW                          00000121
+STORETYPE                         00000120
+STRA                              00000000
+STRB                              00000001
+STRC                              00000002
+STRD                              00000003
+STRSYNC                           00000004
+SWDTEN                            00000000
+SYNC                              00000004
+T0CS                              00000005
+T0IE                              00000005
+T0IF                              00000002
+T0SE                              00000004
+T1CKPS0                           00000004
+T1CKPS1                           00000005
+T1CON                             00000010
+T1GINV                            00000007
+T1GSS                             00000001
+T1IE                              00000000
+T1IF                              00000000
+T1OSCEN                           00000003
+T2CKPS0                           00000000
+T2CKPS1                           00000001
+T2CON                             00000012
+T2IE                              00000001
+T2IF                              00000001
+TEST0                             0000000F
+TMR0                              00000001
+TMR1CS                            00000001
+TMR1GE                            00000006
+TMR1H                             0000000F
+TMR1IE                            00000000
+TMR1IF                            00000000
+TMR1L                             0000000E
+TMR1ON                            00000000
+TMR1_SETUP                        00000276
+TMR2                              00000011
+TMR2IE                            00000001
+TMR2IF                            00000001
+TMR2ON                            00000002
+TOUTPS0                           00000003
+TOUTPS1                           00000004
+TOUTPS2                           00000005
+TOUTPS3                           00000006
+TRISA                             00000085
+TRISA0                            00000000
+TRISA1                            00000001
+TRISA2                            00000002
+TRISA3                            00000003
+TRISA4                            00000004
+TRISA5                            00000005
+TRISB                             00000086
+TRISB4                            00000004
+MPASM  5.01                      PING_SER.ASM   2-5-2006  21:33:43         PAGE 12
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TRISB5                            00000005
+TRISB6                            00000006
+TRISB7                            00000007
+TRISC                             00000087
+TRISC0                            00000000
+TRISC1                            00000001
+TRISC2                            00000002
+TRISC3                            00000003
+TRISC4                            00000004
+TRISC5                            00000005
+TRISC6                            00000006
+TRISC7                            00000007
+TRMT                              00000001
+TUN0                              00000000
+TUN1                              00000001
+TUN2                              00000002
+TUN3                              00000003
+TUN4                              00000004
+TX9                               00000006
+TX9D                              00000000
+TXEN                              00000005
+TXIE                              00000004
+TXIF                              00000004
+TXREG                             00000019
+TXSTA                             00000098
+UA                                00000001
+ULPWUE                            00000005
+VCFG                              00000006
+VP6EN                             00000004
+VR0                               00000000
+VR1                               00000001
+VR2                               00000002
+VR3                               00000003
+VRCON                             00000118
+VRR                               00000005
+W                                 00000000
+WAIT0                             00000795
+WAIT1                             0000079A
+WAIT2                             000007A0
+WAIT3                             000007A6
+WAIT4                             000007AC
+WAIT5                             000007B2
+WAIT_FOR_LOW_PULSE                0000027F
+WAIT_FOR_PULSE                    0000027D
+WCOL                              00000007
+WDTCON                            00000097
+WDTPS0                            00000001
+WDTPS1                            00000002
+WDTPS2                            00000003
+WDTPS3                            00000004
+WPU                               00000095
+WPUA                              00000095
+WPUA0                             00000000
+MPASM  5.01                      PING_SER.ASM   2-5-2006  21:33:43         PAGE 13
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+WPUA1                             00000001
+WPUA2                             00000002
+WPUA4                             00000004
+WPUA5                             00000005
+WPUB                              00000115
+WPUB4                             00000004
+WPUB5                             00000005
+WPUB6                             00000006
+WPUB7                             00000007
+WR                                00000001
+WREN                              00000002
+WRERR                             00000003
+WUE                               00000001
+Z                                 00000002
+_BOR_NSLEEP                       00003EFF
+_BOR_OFF                          00003CFF
+_BOR_ON                           00003FFF
+_BOR_SBODEN                       00003DFF
+_CPD_OFF                          00003FFF
+_CPD_ON                           00003F7F
+_CP_OFF                           00003FFF
+_CP_ON                            00003FBF
+_EC_OSC                           00003FFB
+_EXTRC                            00003FFF
+_EXTRCIO                          00003FFE
+_EXTRC_OSC_CLKOUT                 00003FFF
+_EXTRC_OSC_NOCLKOUT               00003FFE
+_FCMEN_OFF                        000037FF
+_FCMEN_ON                         00003FFF
+_HS_OSC                           00003FFA
+_IESO_OFF                         00003BFF
+_IESO_ON                          00003FFF
+_INTOSC                           00003FFD
+_INTOSCIO                         00003FFC
+_INTRC_OSC_CLKOUT                 00003FFD
+_INTRC_OSC_NOCLKOUT               00003FFC
+_LP_OSC                           00003FF8
+_MCLRE_OFF                        00003FDF
+_MCLRE_ON                         00003FFF
+_PWRTE_OFF                        00003FFF
+_PWRTE_ON                         00003FEF
+_WDT_OFF                          00003FF7
+_WDT_ON                           00003FFF
+_XT_OSC                           00003FF9
+__16F690                          00000001
+MPASM  5.01                      PING_SER.ASM   2-5-2006  21:33:43         PAGE 14
+
+
+MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
+
+
+0000 : XXXXXXXXXXXXXXXX X--------------- ---------------- ----------------
+0240 : ---------------- XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0280 : XXXXXXXXXXXXXXXX X--------------- ---------------- ----------------
+0780 : ---------------- XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXX----------
+2000 : -------X-------- ---------------- ---------------- ----------------
+
+All other memory blocks unused.
+
+Program Memory Words Used:   120
+Program Memory Words Free:  3976
+
+
+Errors   :     0
+Warnings :     6 reported,     0 suppressed
+Messages :    26 reported,     0 suppressed
+
+
